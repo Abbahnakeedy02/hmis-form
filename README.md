@@ -15,7 +15,7 @@ Built for Nigerian health facilities reporting to DHIS2.
 ## Live Link
 
 After deploying, your form will be available at:  
-`https://YOUR_GITHUB_USERNAME.github.io/hmis-form/`
+`https://abbahnakeedy02.github.io/hmis-form/`
 
 ## Local Development
 
