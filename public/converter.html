@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>HMIS JSON Converter - Final</title>
+<title>HMIS JSON Converter - Fixed</title>
 <style>
 body { font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
 select, input, button { font-size: 14px; padding: 8px 12px; margin: 5px 0; border-radius: 6px; border: 1px solid #bbb; }
@@ -10,22 +10,15 @@ button { background: #7c3aed; color: white; border: none; cursor: pointer; font-
 button:hover { background: #6d28d9; }
 label { font-weight: 600; display: block; margin-top: 14px; }
 #result { margin-top: 16px; padding: 12px; border-radius: 8px; display: none; }
-.info { font-size: 13px; color: #555; margin-top: 4px; }
 </style>
 </head>
 <body>
-<h2>HMIS JSON Converter - Final</h2>
+<h2>HMIS JSON Converter - Fixed</h2>
 <p>Convert between <b>gsphcda-dhis.org.ng</b> and <b>dhis2nigeria.org.ng</b></p>
 <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin:10px 0;">
-<b>Blocked / missing cells on dhis2nigeria.org.ng:</b><br>
-• jNGq7plF037 + T5xczyLMecj (position 240)<br>
-• jNGq7plF037 + QLZUSAFmD0C (position 241)<br>
-• jNGq7plF092 + f5lnU6hVD7Z (position 362)<br>
-• jNGq7plF098 + f5lnU6hVD7Z (position 374)<br>
-• jNGq7plF099 + f5lnU6hVD7Z (position 376)<br>
-<small>→ When converting <b>to</b> gsphcda, these become <b>"0"</b>.<br>→ When converting <b>from</b> gsphcda, these are <b>skipped</b>.</small>
+<b>Blocked cells (gsphcda IDs with no dpnigeria equivalent):</b><br>
+jNGq7plF037+T5xczyLMecj, jNGq7plF037+QLZUSAFmD0C, jNGq7plF092+f5lnU6hVD7Z, jNGq7plF098+f5lnU6hVD7Z, jNGq7plF099+f5lnU6hVD7Z
 </div>
-
 <label>From (source):</label>
 <select id="source"><option value="gsphcda">gsphcda-dhis.org.ng</option><option value="dpnigeria">dhis2nigeria.org.ng</option></select>
 <label>To (target):</label>
@@ -36,8 +29,8 @@ label { font-weight: 600; display: block; margin-top: 14px; }
 <div id="result"></div>
 
 <script>
-// ---- Exact keys that are MISSING on dpnigeria (no input field) ----
-const BLOCKED_ON_DPNIGERIA = new Set([
+// These gsphcda keys have NO matching field on dpnigeria
+const BLOCKED_KEYS = new Set([
   "jNGq7plF037||T5xczyLMecj",
   "jNGq7plF037||QLZUSAFmD0C",
   "jNGq7plF092||f5lnU6hVD7Z",
@@ -45,7 +38,7 @@ const BLOCKED_ON_DPNIGERIA = new Set([
   "jNGq7plF099||f5lnU6hVD7Z"
 ]);
 
-// ---- Complete field arrays (gsphcda = 520 entries, dpnigeria = 515 entries) ----
+// Full arrays
 const gsphcdaFields = [
   {de:"TPL5RGRgzPH",co:"H6wa9WFIfAh"},{de:"TPL5RGRgzPH",co:"zer9kq2Ikbd"},{de:"TPL5RGRgzPH",co:"x2VEikCCa4Z"},{de:"TPL5RGRgzPH",co:"u3lCAM5PAiK"},{de:"TPL5RGRgzPH",co:"KtE9QoI9y1M"},{de:"TPL5RGRgzPH",co:"RxBP8yn7YI6"},{de:"TPL5RGRgzPH",co:"hwjLwMGe4xw"},{de:"TPL5RGRgzPH",co:"SosO6bX1nNK"},{de:"TPL5RGRgzPH",co:"RbKofv9kDqg"},{de:"TPL5RGRgzPH",co:"tYstTYOf3Q7"},{de:"TPL5RGRgzPH",co:"BdD1atQV7yi"},{de:"TPL5RGRgzPH",co:"PmRdxt1EJl4"},{de:"k3BuWAntiQH",co:"H6wa9WFIfAh"},{de:"k3BuWAntiQH",co:"zer9kq2Ikbd"},{de:"k3BuWAntiQH",co:"x2VEikCCa4Z"},{de:"k3BuWAntiQH",co:"u3lCAM5PAiK"},{de:"k3BuWAntiQH",co:"KtE9QoI9y1M"},{de:"k3BuWAntiQH",co:"RxBP8yn7YI6"},{de:"k3BuWAntiQH",co:"hwjLwMGe4xw"},{de:"k3BuWAntiQH",co:"SosO6bX1nNK"},{de:"k3BuWAntiQH",co:"RbKofv9kDqg"},{de:"k3BuWAntiQH",co:"tYstTYOf3Q7"},{de:"k3BuWAntiQH",co:"BdD1atQV7yi"},{de:"k3BuWAntiQH",co:"PmRdxt1EJl4"},{de:"ZdG3zLIvUdx",co:"H6wa9WFIfAh"},{de:"ZdG3zLIvUdx",co:"zer9kq2Ikbd"},{de:"ZdG3zLIvUdx",co:"x2VEikCCa4Z"},{de:"ZdG3zLIvUdx",co:"u3lCAM5PAiK"},{de:"ZdG3zLIvUdx",co:"KtE9QoI9y1M"},{de:"ZdG3zLIvUdx",co:"RxBP8yn7YI6"},{de:"ZdG3zLIvUdx",co:"hwjLwMGe4xw"},{de:"ZdG3zLIvUdx",co:"SosO6bX1nNK"},{de:"ZdG3zLIvUdx",co:"RbKofv9kDqg"},{de:"ZdG3zLIvUdx",co:"tYstTYOf3Q7"},{de:"ZdG3zLIvUdx",co:"BdD1atQV7yi"},{de:"ZdG3zLIvUdx",co:"PmRdxt1EJl4"},{de:"l9LrAzeXfuE",co:"HllvX50cXC0"},{de:"jTX8h6u4R0X",co:"H6wa9WFIfAh"},{de:"jTX8h6u4R0X",co:"zer9kq2Ikbd"},{de:"jTX8h6u4R0X",co:"x2VEikCCa4Z"},{de:"jTX8h6u4R0X",co:"u3lCAM5PAiK"},{de:"jTX8h6u4R0X",co:"KtE9QoI9y1M"},{de:"jTX8h6u4R0X",co:"RxBP8yn7YI6"},{de:"jTX8h6u4R0X",co:"hwjLwMGe4xw"},{de:"jTX8h6u4R0X",co:"SosO6bX1nNK"},{de:"jTX8h6u4R0X",co:"RbKofv9kDqg"},{de:"jTX8h6u4R0X",co:"tYstTYOf3Q7"},{de:"jTX8h6u4R0X",co:"BdD1atQV7yi"},{de:"jTX8h6u4R0X",co:"PmRdxt1EJl4"},{de:"aveFczHJAoj",co:"oCv1TaNTsSB"},{de:"aveFczHJAoj",co:"Q2hwu7rdKhV"},{de:"T3yEuMxA3u2",co:"kZierbQdQPY"},{de:"T3yEuMxA3u2",co:"DZVj95PpKXw"},{de:"T3yEuMxA3u2",co:"htftF6BONaM"},{de:"T3yEuMxA3u2",co:"rCe456mRsss"},{de:"T3yEuMxA3u2",co:"LW6EkfTgevt"},{de:"T3yEuMxA3u2",co:"UL23aESR2Hb"},{de:"T3yEuMxA3u2",co:"GvJMgBkrVh7"},{de:"T3yEuMxA3u2",co:"dWCKocnOYqv"},{de:"U2QIuMLqRXa",co:"aujIqxZkepd"},{de:"U2QIuMLqRXa",co:"bBVMQzQOn2l"},{de:"U2QIuMLqRXa",co:"xDQbsDmWMnP"},{de:"U2QIuMLqRXa",co:"yy1ozoKMnPf"},{de:"uJnEts8U8OS",co:"QSWfjLFJnFN"},{de:"uJnEts8U8OS",co:"dOat1c5Q6Im"},{de:"uJnEts8U8OS",co:"CjqivJfYBz5"},{de:"uJnEts8U8OS",co:"cXfu6byDNnY"},{de:"oGsoXawMvwY",co:"FK8eH0VoLcD"},{de:"oGsoXawMvwY",co:"Atwj2IMCJMZ"},{de:"oGsoXawMvwY",co:"I3o9B001I60"},{de:"oGsoXawMvwY",co:"yY1C0KuHCrG"},{de:"oGsoXawMvwY",co:"TgluJRTPsIy"},{de:"o18dulQcUMf",co:"QoqBzU0IBbh"},{de:"o18dulQcUMf",co:"ECNIgLSfzS8"},{de:"VezZfwYFNg3",co:"HllvX50cXC0"},{de:"g8wmRh44SrQ",co:"HllvX50cXC0"},{de:"V83q2a03itE",co:"HllvX50cXC0"},{de:"KATOJ0IB3qL",co:"HllvX50cXC0"},{de:"w4UzDA75OAh",co:"HllvX50cXC0"},{de:"pWtBYnVYqL4",co:"HllvX50cXC0"},{de:"JAD3KtkflGZ",co:"HllvX50cXC0"},{de:"SedL2iidxAX",co:"HllvX50cXC0"},{de:"vvvhM1zUDKM",co:"HllvX50cXC0"},{de:"Ml82QKWfpp7",co:"HllvX50cXC0"},{de:"pJj6ATnBhic",co:"HllvX50cXC0"},{de:"ocqmIjFaPPb",co:"HllvX50cXC0"},{de:"KteIflYWCB7",co:"HllvX50cXC0"},{de:"BEh5fkSwuN9",co:"HllvX50cXC0"},{de:"COyom0PPpvk",co:"HllvX50cXC0"},{de:"nEAaEDKhRyR",co:"HllvX50cXC0"},{de:"RNvqT7Vy375",co:"HllvX50cXC0"},{de:"j0TzyRQ5vfP",co:"HllvX50cXC0"},{de:"HrRSbqSKCcV",co:"HllvX50cXC0"},{de:"jeFCvxf1XyJ",co:"HllvX50cXC0"},{de:"uOQeG5u3FnF",co:"HllvX50cXC0"},{de:"xDkL44Uf2jv",co:"HllvX50cXC0"},{de:"BuW69tmvtxn",co:"HllvX50cXC0"},{de:"IL8oKlGX37r",co:"HllvX50cXC0"},{de:"vzKQsdmjPfE",co:"fTY1oQOIdnT"},{de:"vzKQsdmjPfE",co:"XwKpIrIurEi"},{de:"vzKQsdmjPfE",co:"X449fWyaazy"},{de:"kgui2czIPBu",co:"HllvX50cXC0"},{de:"SEysfopCehg",co:"HllvX50cXC0"},{de:"QVRWBNLd6W3",co:"HllvX50cXC0"},{de:"eYWNa5jg4w0",co:"HllvX50cXC0"},{de:"GPNa8gnOFmS",co:"HllvX50cXC0"},{de:"TCdefdOFrqE",co:"yi3zjIZlIjN"},{de:"TCdefdOFrqE",co:"sW5gUJIFEoK"},{de:"Ugk7gmb4ZHH",co:"HllvX50cXC0"},{de:"Q9ZEWH5gCSh",co:"bPf2y6btDt3"},{de:"Q9ZEWH5gCSh",co:"Lbp6ZjTIjg0"},{de:"A1uKZiKhHRM",co:"HllvX50cXC0"},{de:"jNGZ7pGF8YM",co:"HllvX50cXC0"},{de:"jNGq7plF001",co:"k2YKDTDB9DB"},{de:"jNGq7plF001",co:"zo2qqR166Dn"},{de:"jNGq7plF001",co:"tW4bZ7ZmLXc"},{de:"jNGq7plF001",co:"kycwQnScCYI"},{de:"jNGq7plF001",co:"QwHMyx9sTN7"},{de:"jNGq7plF001",co:"J5Olf738ugw"},{de:"jNGq7plF001",co:"pFtU7LHg285"},{de:"jNGq7plF001",co:"l61ouQ1AneZ"},{de:"jNGq7plF002",co:"i1CkNv5rrDj"},{de:"jNGq7plF002",co:"UnT7tuR97k2"},{de:"jNGq7plF002",co:"eFupNxJgEFB"},{de:"jNGq7plF002",co:"sZKLBF4hvUa"},{de:"jNGq7plF003",co:"i1CkNv5rrDj"},{de:"jNGq7plF003",co:"UnT7tuR97k2"},{de:"jNGq7plF003",co:"eFupNxJgEFB"},{de:"jNGq7plF003",co:"sZKLBF4hvUa"},{de:"jNGq7plF004",co:"UpHqJD3fd8I"},{de:"jNGq7plF004",co:"xARceUXtn4r"},{de:"jNGq7plF005",co:"f5lnU6hVD7Z"},{de:"jNGq7plF005",co:"CxemxeUsBoz"},{de:"jNGq7plF006",co:"f5lnU6hVD7Z"},{de:"jNGq7plF006",co:"CxemxeUsBoz"},{de:"jNGq7plF007",co:"f5lnU6hVD7Z"},{de:"jNGq7plF007",co:"CxemxeUsBoz"},{de:"jNGq7plF008",co:"f5lnU6hVD7Z"},{de:"jNGq7plF008",co:"CxemxeUsBoz"},{de:"jNGq7plF009",co:"f5lnU6hVD7Z"},{de:"jNGq7plF009",co:"CxemxeUsBoz"},{de:"jNGq7plF010",co:"f5lnU6hVD7Z"},{de:"jNGq7plF010",co:"CxemxeUsBoz"},{de:"jNGq7plF011",co:"f5lnU6hVD7Z"},{de:"jNGq7plF011",co:"CxemxeUsBoz"},{de:"jNGq7plF012",co:"f5lnU6hVD7Z"},{de:"jNGq7plF012",co:"CxemxeUsBoz"},{de:"jNGq7plF013",co:"f5lnU6hVD7Z"},{de:"jNGq7plF013",co:"CxemxeUsBoz"},{de:"jNGq7plF014",co:"f5lnU6hVD7Z"},{de:"jNGq7plF014",co:"CxemxeUsBoz"},{de:"jNGq7plF015",co:"f5lnU6hVD7Z"},{de:"jNGq7plF015",co:"CxemxeUsBoz"},{de:"jNGq7plF016",co:"f5lnU6hVD7Z"},{de:"jNGq7plF016",co:"CxemxeUsBoz"},{de:"jNGq7plF017",co:"bYdKO7y1xtl"},{de:"jNGq7plF017",co:"EbgzkRR6BQz"},{de:"jNGq7plF017",co:"HUbOiPN3yVs"},{de:"jNGq7plF017",co:"h8nDQgWTF0T"},{de:"jNGq7plF017",co:"oa2EgBaCj2M"},{de:"jNGq7plF018",co:"bYdKO7y1xtl"},{de:"jNGq7plF018",co:"EbgzkRR6BQz"},{de:"jNGq7plF018",co:"HUbOiPN3yVs"},{de:"jNGq7plF018",co:"h8nDQgWTF0T"},{de:"jNGq7plF018",co:"oa2EgBaCj2M"},{de:"jNGq7plF019",co:"RCLbmQf297r"},{de:"jNGq7plF019",co:"NcdZeYPcp4c"},{de:"jNGq7plF019",co:"T5xczyLMecj"},{de:"jNGq7plF019",co:"QLZUSAFmD0C"},{de:"jNGq7plF020",co:"RCLbmQf297r"},{de:"jNGq7plF020",co:"NcdZeYPcp4c"},{de:"jNGq7plF020",co:"T5xczyLMecj"},{de:"jNGq7plF020",co:"QLZUSAFmD0C"},{de:"jNGq7plF021",co:"RCLbmQf297r"},{de:"jNGq7plF021",co:"NcdZeYPcp4c"},{de:"jNGq7plF021",co:"T5xczyLMecj"},{de:"jNGq7plF021",co:"QLZUSAFmD0C"},{de:"jNGq7plF022",co:"RCLbmQf297r"},{de:"jNGq7plF022",co:"NcdZeYPcp4c"},{de:"jNGq7plF022",co:"T5xczyLMecj"},{de:"jNGq7plF022",co:"QLZUSAFmD0C"},{de:"jNGq7plF023",co:"RCLbmQf297r"},{de:"jNGq7plF023",co:"NcdZeYPcp4c"},{de:"jNGq7plF023",co:"T5xczyLMecj"},{de:"jNGq7plF023",co:"QLZUSAFmD0C"},{de:"jNGq7plF024",co:"RCLbmQf297r"},{de:"jNGq7plF024",co:"NcdZeYPcp4c"},{de:"jNGq7plF024",co:"T5xczyLMecj"},{de:"jNGq7plF024",co:"QLZUSAFmD0C"},{de:"jNGq7plF025",co:"RCLbmQf297r"},{de:"jNGq7plF025",co:"NcdZeYPcp4c"},{de:"jNGq7plF025",co:"T5xczyLMecj"},{de:"jNGq7plF025",co:"QLZUSAFmD0C"},{de:"jNGq7plF026",co:"RCLbmQf297r"},{de:"jNGq7plF026",co:"NcdZeYPcp4c"},{de:"jNGq7plF026",co:"T5xczyLMecj"},{de:"jNGq7plF026",co:"QLZUSAFmD0C"},{de:"jNGq7plF027",co:"RCLbmQf297r"},{de:"jNGq7plF027",co:"NcdZeYPcp4c"},{de:"jNGq7plF027",co:"T5xczyLMecj"},{de:"jNGq7plF027",co:"QLZUSAFmD0C"},{de:"jNGq7plF028",co:"RCLbmQf297r"},{de:"jNGq7plF028",co:"NcdZeYPcp4c"},{de:"jNGq7plF028",co:"T5xczyLMecj"},{de:"jNGq7plF028",co:"QLZUSAFmD0C"},{de:"jNGq7plF029",co:"RCLbmQf297r"},{de:"jNGq7plF029",co:"NcdZeYPcp4c"},{de:"jNGq7plF029",co:"T5xczyLMecj"},{de:"jNGq7plF029",co:"QLZUSAFmD0C"},{de:"jNGq7plF030",co:"RCLbmQf297r"},{de:"jNGq7plF030",co:"NcdZeYPcp4c"},{de:"jNGq7plF030",co:"T5xczyLMecj"},{de:"jNGq7plF030",co:"QLZUSAFmD0C"},{de:"jNGq7plF031",co:"RCLbmQf297r"},{de:"jNGq7plF031",co:"NcdZeYPcp4c"},{de:"jNGq7plF031",co:"T5xczyLMecj"},{de:"jNGq7plF031",co:"QLZUSAFmD0C"},{de:"jNGq7plF032",co:"RCLbmQf297r"},{de:"jNGq7plF032",co:"NcdZeYPcp4c"},{de:"jNGq7plF032",co:"T5xczyLMecj"},{de:"jNGq7plF032",co:"QLZUSAFmD0C"},{de:"jNGq7plF033",co:"RCLbmQf297r"},{de:"jNGq7plF033",co:"NcdZeYPcp4c"},{de:"jNGq7plF033",co:"T5xczyLMecj"},{de:"jNGq7plF033",co:"QLZUSAFmD0C"},{de:"jNGq7plF034",co:"RCLbmQf297r"},{de:"jNGq7plF034",co:"NcdZeYPcp4c"},{de:"jNGq7plF034",co:"T5xczyLMecj"},{de:"jNGq7plF034",co:"QLZUSAFmD0C"},{de:"jNGq7plF035",co:"RCLbmQf297r"},{de:"jNGq7plF035",co:"NcdZeYPcp4c"},{de:"jNGq7plF035",co:"T5xczyLMecj"},{de:"jNGq7plF035",co:"QLZUSAFmD0C"},{de:"jNGq7plF036",co:"RCLbmQf297r"},{de:"jNGq7plF036",co:"NcdZeYPcp4c"},{de:"jNGq7plF036",co:"T5xczyLMecj"},{de:"jNGq7plF036",co:"QLZUSAFmD0C"},{de:"jNGq7plF037",co:"RCLbmQf297r"},{de:"jNGq7plF037",co:"NcdZeYPcp4c"},{de:"jNGq7plF037",co:"T5xczyLMecj"},{de:"jNGq7plF037",co:"QLZUSAFmD0C"},{de:"jNGq7plF038",co:"RCLbmQf297r"},{de:"jNGq7plF038",co:"NcdZeYPcp4c"},{de:"jNGq7plF038",co:"T5xczyLMecj"},{de:"jNGq7plF038",co:"QLZUSAFmD0C"},{de:"jNGq7plF039",co:"RCLbmQf297r"},{de:"jNGq7plF039",co:"NcdZeYPcp4c"},{de:"jNGq7plF039",co:"T5xczyLMecj"},{de:"jNGq7plF039",co:"QLZUSAFmD0C"},{de:"jNGq7plF040",co:"RCLbmQf297r"},{de:"jNGq7plF040",co:"NcdZeYPcp4c"},{de:"jNGq7plF040",co:"T5xczyLMecj"},{de:"jNGq7plF040",co:"QLZUSAFmD0C"},{de:"jNGq7plF041",co:"RCLbmQf297r"},{de:"jNGq7plF041",co:"NcdZeYPcp4c"},{de:"jNGq7plF041",co:"T5xczyLMecj"},{de:"jNGq7plF041",co:"QLZUSAFmD0C"},{de:"jNGq7plF042",co:"DMyoRuaLyVj"},{de:"jNGq7plF042",co:"WL2uRZI9hIw"},{de:"jNGq7plF043",co:"HllvX50cXC0"},{de:"jNGq7plF044",co:"OsUJDvVxLi0"},{de:"jNGq7plF044",co:"RfWNrvgNQHl"},{de:"jNGq7plF045",co:"HllvX50cXC0"},{de:"jNGq7plF045",co:"HllvX50cXC0"},{de:"jNGq7plF046",co:"JatwHHqEq3A"},{de:"jNGq7plF046",co:"S2pJcMIJ7Cf"},{de:"jNGq7plF047",co:"JatwHHqEq3A"},{de:"jNGq7plF047",co:"S2pJcMIJ7Cf"},{de:"jNGq7plF048",co:"HllvX50cXC0"},{de:"jNGq7plF048",co:"HllvX50cXC0"},{de:"jNGq7plF049",co:"HWUpn6M9Eyg"},{de:"jNGq7plF049",co:"OxOnYflKBAd"},{de:"jNGq7plF049",co:"mYyK4ZUVPly"},{de:"jNGq7plF050",co:"HllvX50cXC0"},{de:"jNGq7plF051",co:"HllvX50cXC0"},{de:"jNGq7plF051",co:"HllvX50cXC0"},{de:"jNGq7plF052",co:"f5lnU6hVD7Z"},{de:"jNGq7plF052",co:"CxemxeUsBoz"},{de:"jNGq7plF053",co:"f5lnU6hVD7Z"},{de:"jNGq7plF053",co:"CxemxeUsBoz"},{de:"jNGq7plF054",co:"f5lnU6hVD7Z"},{de:"jNGq7plF054",co:"CxemxeUsBoz"},{de:"jNGq7plF055",co:"HzffxAxaf0t"},{de:"jNGq7plF055",co:"sBgZtz7UJCN"},{de:"jNGq7plF055",co:"Vol9mR6G9Hn"},{de:"jNGq7plF055",co:"NiriGXjdyw5"},{de:"jNGq7plF055",co:"a7SJXZxgPPQ"},{de:"jNGq7plF055",co:"Gxj8xzyaU76"},{de:"jNGq7plF055",co:"odVADGPXvp7"},{de:"jNGq7plF055",co:"ykCI1XLeryc"},{de:"jNGq7plF055",co:"Y68o0jYMET8"},{de:"jNGq7plF055",co:"SOfY5Ccmab4"},{de:"jNGq7plF055",co:"hNMtxfCD5wR"},{de:"jNGq7plF055",co:"eUPuDmmeXWu"},{de:"jNGq7plF056",co:"f5lnU6hVD7Z"},{de:"jNGq7plF056",co:"CxemxeUsBoz"},{de:"jNGq7plF057",co:"f5lnU6hVD7Z"},{de:"jNGq7plF057",co:"CxemxeUsBoz"},{de:"jNGq7plF058",co:"HllvX50cXC0"},{de:"jNGq7plF059",co:"JprACHpnjKl"},{de:"jNGq7plF059",co:"nZ1zYnSSSEp"},{de:"jNGq7plF059",co:"yFfLfrpkE91"},{de:"jNGq7plF059",co:"Y9O2v8Nt5WD"},{de:"jNGq7plF060",co:"f5lnU6hVD7Z"},{de:"jNGq7plF060",co:"CxemxeUsBoz"},{de:"jNGq7plF061",co:"f5lnU6hVD7Z"},{de:"jNGq7plF061",co:"CxemxeUsBoz"},{de:"jNGq7plF062",co:"Gl4XMwCjT3M"},{de:"jNGq7plF062",co:"HjqvwXVq9uX"},{de:"jNGq7plF062",co:"hb5BrKF8eGx"},{de:"jNGq7plF062",co:"EtNh3HjKTpf"},{de:"jNGq7plF063",co:"nQR6aDf0Uxv"},{de:"jNGq7plF063",co:"brTdwY4cD21"},{de:"jNGq7plF063",co:"HRfYzmw4BL0"},{de:"jNGq7plF063",co:"MxjPABKjKwD"},{de:"jNGq7plF063",co:"mlKJRmg5b1m"},{de:"jNGq7plF063",co:"FlfkEzdjAvl"},{de:"jNGq7plF063",co:"OzcrbB9e2nx"},{de:"jNGq7plF063",co:"nxANbvg6WAC"},{de:"jNGq7plF064",co:"f5lnU6hVD7Z"},{de:"jNGq7plF064",co:"CxemxeUsBoz"},{de:"jNGq7plF065",co:"f5lnU6hVD7Z"},{de:"jNGq7plF065",co:"CxemxeUsBoz"},{de:"jNGq7plF066",co:"f5lnU6hVD7Z"},{de:"jNGq7plF066",co:"CxemxeUsBoz"},{de:"jNGq7plF067",co:"f5lnU6hVD7Z"},{de:"jNGq7plF067",co:"CxemxeUsBoz"},{de:"jNGq7plF068",co:"f5lnU6hVD7Z"},{de:"jNGq7plF068",co:"CxemxeUsBoz"},{de:"jNGq7plF069",co:"f5lnU6hVD7Z"},{de:"jNGq7plF069",co:"CxemxeUsBoz"},{de:"jNGq7plF070",co:"f5lnU6hVD7Z"},{de:"jNGq7plF070",co:"CxemxeUsBoz"},{de:"jNGq7plF071",co:"zOj62DlILjP"},{de:"jNGq7plF071",co:"KOvLlTRvMp2"},{de:"jNGq7plF071",co:"DzoGFPrFWLX"},{de:"jNGq7plF071",co:"sVKN5rtRUrf"},{de:"jNGq7plF071",co:"G7ePMg90lyr"},{de:"jNGq7plF072",co:"HllvX50cXC0"},{de:"jNGq7plF073",co:"HllvX50cXC0"},{de:"jNGq7plF074",co:"HllvX50cXC0"},{de:"jNGq7plF075",co:"zQGNCzMRF8x"},{de:"jNGq7plF075",co:"nMxC4LJCkyh"},{de:"jNGq7plF075",co:"qvOGth8yfG5"},{de:"jNGq7plF075",co:"UjDoabKxk1I"},{de:"jNGq7plF076",co:"BYhNo6ms9nc"},{de:"jNGq7plF076",co:"t26rP0PfcBK"},{de:"jNGq7plF077",co:"iR6sKKyKmoA"},{de:"jNGq7plF077",co:"mQdSjc9o64K"},{de:"jNGq7plF078",co:"f5lnU6hVD7Z"},{de:"jNGq7plF078",co:"CxemxeUsBoz"},{de:"jNGq7plF079",co:"f5lnU6hVD7Z"},{de:"jNGq7plF079",co:"CxemxeUsBoz"},{de:"jNGq7plF080",co:"f5lnU6hVD7Z"},{de:"jNGq7plF080",co:"CxemxeUsBoz"},{de:"jNGq7plF081",co:"HllvX50cXC0"},{de:"jNGq7plF082",co:"HllvX50cXC0"},{de:"jNGq7plF083",co:"HllvX50cXC0"},{de:"jNGq7plF084",co:"HllvX50cXC0"},{de:"jNGq7plF085",co:"HllvX50cXC0"},{de:"jNGq7plF086",co:"HllvX50cXC0"},{de:"jNGq7plF087",co:"HllvX50cXC0"},{de:"jNGq7plF088",co:"HllvX50cXC0"},{de:"jNGq7plF089",co:"HllvX50cXC0"},{de:"jNGq7plF090",co:"HllvX50cXC0"},{de:"jNGq7plF091",co:"f5lnU6hVD7Z"},{de:"jNGq7plF091",co:"CxemxeUsBoz"},{de:"jNGq7plF092",co:"f5lnU6hVD7Z"},{de:"jNGq7plF092",co:"CxemxeUsBoz"},{de:"jNGq7plF093",co:"f5lnU6hVD7Z"},{de:"jNGq7plF093",co:"CxemxeUsBoz"},{de:"jNGq7plF094",co:"f5lnU6hVD7Z"},{de:"jNGq7plF094",co:"CxemxeUsBoz"},{de:"jNGq7plF095",co:"f5lnU6hVD7Z"},{de:"jNGq7plF095",co:"CxemxeUsBoz"},{de:"jNGq7plF096",co:"f5lnU6hVD7Z"},{de:"jNGq7plF096",co:"CxemxeUsBoz"},{de:"jNGq7plF097",co:"f5lnU6hVD7Z"},{de:"jNGq7plF097",co:"CxemxeUsBoz"},{de:"jNGq7plF098",co:"f5lnU6hVD7Z"},{de:"jNGq7plF098",co:"CxemxeUsBoz"},{de:"jNGq7plF099",co:"f5lnU6hVD7Z"},{de:"jNGq7plF099",co:"CxemxeUsBoz"},{de:"jNGq7plF100",co:"HllvX50cXC0"},{de:"jNGq7plF101",co:"g23AbnbTHxK"},{de:"jNGq7plF101",co:"BejwJjDyM0G"},{de:"jNGq7plF101",co:"PltojeBkEef"},{de:"jNGq7plF102",co:"g23AbnbTHxK"},{de:"jNGq7plF102",co:"BejwJjDyM0G"},{de:"jNGq7plF102",co:"PltojeBkEef"},{de:"jNGq7plF103",co:"g23AbnbTHxK"},{de:"jNGq7plF103",co:"BejwJjDyM0G"},{de:"jNGq7plF103",co:"PltojeBkEef"},{de:"jNGq7plF104",co:"g23AbnbTHxK"},{de:"jNGq7plF104",co:"BejwJjDyM0G"},{de:"jNGq7plF104",co:"PltojeBkEef"},{de:"jNGq7plF105",co:"g23AbnbTHxK"},{de:"jNGq7plF105",co:"BejwJjDyM0G"},{de:"jNGq7plF105",co:"PltojeBkEef"},{de:"jNGq7plF106",co:"g23AbnbTHxK"},{de:"jNGq7plF106",co:"BejwJjDyM0G"},{de:"jNGq7plF106",co:"PltojeBkEef"},{de:"jNGq7plF107",co:"g23AbnbTHxK"},{de:"jNGq7plF107",co:"BejwJjDyM0G"},{de:"jNGq7plF107",co:"PltojeBkEef"},{de:"jNGq7plF108",co:"g23AbnbTHxK"},{de:"jNGq7plF108",co:"BejwJjDyM0G"},{de:"jNGq7plF108",co:"PltojeBkEef"},{de:"jNGq7plF109",co:"g23AbnbTHxK"},{de:"jNGq7plF109",co:"BejwJjDyM0G"},{de:"jNGq7plF109",co:"PltojeBkEef"},{de:"jNGq7plF110",co:"g23AbnbTHxK"},{de:"jNGq7plF110",co:"BejwJjDyM0G"},{de:"jNGq7plF110",co:"PltojeBkEef"},{de:"jNGq7plF111",co:"g23AbnbTHxK"},{de:"jNGq7plF111",co:"BejwJjDyM0G"},{de:"jNGq7plF111",co:"PltojeBkEef"},{de:"jNGq7plF112",co:"g23AbnbTHxK"},{de:"jNGq7plF112",co:"BejwJjDyM0G"},{de:"jNGq7plF112",co:"PltojeBkEef"},{de:"jNGq7plF113",co:"g23AbnbTHxK"},{de:"jNGq7plF113",co:"BejwJjDyM0G"},{de:"jNGq7plF113",co:"PltojeBkEef"},{de:"jNGq7plF114",co:"g23AbnbTHxK"},{de:"jNGq7plF114",co:"BejwJjDyM0G"},{de:"jNGq7plF114",co:"PltojeBkEef"},{de:"jNGq7plF115",co:"f5lnU6hVD7Z"},{de:"jNGq7plF115",co:"CxemxeUsBoz"},{de:"jNGq7plF116",co:"f5lnU6hVD7Z"},{de:"jNGq7plF116",co:"CxemxeUsBoz"},{de:"jNGq7plF117",co:"f5lnU6hVD7Z"},{de:"jNGq7plF117",co:"CxemxeUsBoz"},{de:"jNGq7plF118",co:"lv3zynWMSql"},{de:"jNGq7plF118",co:"x7d27XjNT4b"},{de:"jNGq7plF118",co:"Xgy6ODpF8pn"},{de:"jNGq7plF118",co:"jDuyuvNky8Z"},{de:"jNGq7plF119",co:"lv3zynWMSql"},{de:"jNGq7plF119",co:"x7d27XjNT4b"},{de:"jNGq7plF119",co:"Xgy6ODpF8pn"},{de:"jNGq7plF119",co:"jDuyuvNky8Z"},{de:"jNGq7plF120",co:"lv3zynWMSql"},{de:"jNGq7plF120",co:"x7d27XjNT4b"},{de:"jNGq7plF120",co:"Xgy6ODpF8pn"},{de:"jNGq7plF120",co:"jDuyuvNky8Z"},{de:"jNGq7plF121",co:"lv3zynWMSql"},{de:"jNGq7plF121",co:"x7d27XjNT4b"},{de:"jNGq7plF121",co:"Xgy6ODpF8pn"},{de:"jNGq7plF121",co:"jDuyuvNky8Z"},{de:"jNGq7plF122",co:"lv3zynWMSql"},{de:"jNGq7plF122",co:"x7d27XjNT4b"},{de:"jNGq7plF122",co:"Xgy6ODpF8pn"},{de:"jNGq7plF122",co:"jDuyuvNky8Z"},{de:"jNGq7plF123",co:"lv3zynWMSql"},{de:"jNGq7plF123",co:"x7d27XjNT4b"},{de:"jNGq7plF123",co:"Xgy6ODpF8pn"},{de:"jNGq7plF123",co:"jDuyuvNky8Z"},{de:"jNGq7plF124",co:"lv3zynWMSql"},{de:"jNGq7plF124",co:"x7d27XjNT4b"},{de:"jNGq7plF124",co:"Xgy6ODpF8pn"},{de:"jNGq7plF124",co:"jDuyuvNky8Z"},{de:"jNGq7plF125",co:"lv3zynWMSql"},{de:"jNGq7plF125",co:"x7d27XjNT4b"},{de:"jNGq7plF125",co:"Xgy6ODpF8pn"},{de:"jNGq7plF125",co:"jDuyuvNky8Z"},{de:"jNGq7plF126",co:"Z7WCwWmZkHQ"},{de:"jNGq7plF126",co:"tsbstyOySyv"},{de:"jNGq7plF126",co:"M2Ry39vEX90"},{de:"jNGq7plF126",co:"bdkjYsEFwXT"},{de:"jNGq7plF127",co:"Z7WCwWmZkHQ"},{de:"jNGq7plF127",co:"tsbstyOySyv"},{de:"jNGq7plF127",co:"M2Ry39vEX90"},{de:"jNGq7plF127",co:"bdkjYsEFwXT"},{de:"jNGq7plF128",co:"Z7WCwWmZkHQ"},{de:"jNGq7plF128",co:"tsbstyOySyv"},{de:"jNGq7plF128",co:"M2Ry39vEX90"},{de:"jNGq7plF128",co:"bdkjYsEFwXT"},{de:"jNGq7plF129",co:"HUt7whSnbrI"},{de:"jNGq7plF129",co:"lQN5PE4wJMu"},{de:"jNGq7plF129",co:"uO3F2gVsFid"},{de:"jNGq7plF129",co:"Ldq7Gsm4nE9"},{de:"jNGq7plF129",co:"lU3zykSgnrB"},{de:"jNGq7plF129",co:"xnZazVkqHzs"},{de:"jNGq7plF130",co:"HUt7whSnbrI"},{de:"jNGq7plF130",co:"lQN5PE4wJMu"},{de:"jNGq7plF130",co:"uO3F2gVsFid"},{de:"jNGq7plF130",co:"Ldq7Gsm4nE9"},{de:"jNGq7plF130",co:"lU3zykSgnrB"},{de:"jNGq7plF130",co:"xnZazVkqHzs"},{de:"jNGq7plF131",co:"HUt7whSnbrI"},{de:"jNGq7plF131",co:"lQN5PE4wJMu"},{de:"jNGq7plF131",co:"uO3F2gVsFid"},{de:"jNGq7plF131",co:"Ldq7Gsm4nE9"},{de:"jNGq7plF131",co:"lU3zykSgnrB"},{de:"jNGq7plF131",co:"xnZazVkqHzs"},{de:"jNGq7plF132",co:"HUt7whSnbrI"},{de:"jNGq7plF132",co:"lQN5PE4wJMu"},{de:"jNGq7plF132",co:"uO3F2gVsFid"},{de:"jNGq7plF132",co:"Ldq7Gsm4nE9"},{de:"jNGq7plF132",co:"lU3zykSgnrB"},{de:"jNGq7plF132",co:"xnZazVkqHzs"},{de:"jNGq7plF133",co:"HUt7whSnbrI"},{de:"jNGq7plF133",co:"lQN5PE4wJMu"},{de:"jNGq7plF133",co:"uO3F2gVsFid"},{de:"jNGq7plF133",co:"Ldq7Gsm4nE9"},{de:"jNGq7plF133",co:"lU3zykSgnrB"},{de:"jNGq7plF133",co:"xnZazVkqHzs"},{de:"jNGq7plF134",co:"HUt7whSnbrI"},{de:"jNGq7plF134",co:"lQN5PE4wJMu"},{de:"jNGq7plF134",co:"uO3F2gVsFid"},{de:"jNGq7plF134",co:"Ldq7Gsm4nE9"},{de:"jNGq7plF134",co:"lU3zykSgnrB"},{de:"jNGq7plF134",co:"xnZazVkqHzs"},{de:"jNGq7plF135",co:"HUt7whSnbrI"},{de:"jNGq7plF135",co:"lQN5PE4wJMu"},{de:"jNGq7plF135",co:"uO3F2gVsFid"},{de:"jNGq7plF135",co:"Ldq7Gsm4nE9"},{de:"jNGq7plF135",co:"lU3zykSgnrB"},{de:"jNGq7plF135",co:"xnZazVkqHzs"},{de:"jNGq7plF136",co:"f5lnU6hVD7Z"},{de:"jNGq7plF136",co:"CxemxeUsBoz"},{de:"jNGq7plF137",co:"f5lnU6hVD7Z"},{de:"jNGq7plF137",co:"CxemxeUsBoz"},{de:"jNGq7plF138",co:"f5lnU6hVD7Z"},{de:"jNGq7plF138",co:"CxemxeUsBoz"},{de:"jNGq7plF139",co:"HllvX50cXC0"}
 ];
@@ -73,26 +66,31 @@ document.getElementById('convertBtn').addEventListener('click',()=>{
       const targetFields = targetSite==='gsphcda'?gsphcdaFields:dpnigeriaFields;
       const newDataValues=[];
       let filledCount=0, zeroCount=0, skippedCount=0;
-      const existingPositions=new Set();
 
       for(const dv of sourceData.dataValues){
         const key=dv.dataElement+'||'+dv.categoryOptionCombo;
-        const pos=sourceMap.get(key);
-        if(pos===undefined){skippedCount++;continue;}
 
-        // If converting TO dpnigeria and this entry is blocked (missing on dpnigeria), skip it
-        if(targetSite==='dpnigeria' && BLOCKED_ON_DPNIGERIA.has(key)){
+        // If source is gsphcda and this key is blocked → always skip
+        if(sourceSite==='gsphcda' && BLOCKED_KEYS.has(key)){
           skippedCount++;
           continue;
         }
 
-        // If converting TO gsphcda and this entry is blocked (meaning it's missing from dpnigeria source),
-        // we'll handle it later by filling with "0". For now, just note that this position exists.
-        // But if source is dpnigeria, these entries won't appear anyway because the extract wouldn't capture them.
-        // So we just process normally and later fill missing positions with 0.
+        const pos=sourceMap.get(key);
+        if(pos===undefined){skippedCount++;continue;}
+
+        // If target is dpnigeria and the corresponding gsphcda position is blocked → skip
+        if(targetSite==='dpnigeria'){
+          // Find the gsphcda key at the same position
+          const gsKey = gsphcdaFields[pos].de+'||'+gsphcdaFields[pos].co;
+          if(BLOCKED_KEYS.has(gsKey)){
+            skippedCount++;
+            continue;
+          }
+        }
 
         if(pos>=targetFields.length){skippedCount++;continue;}
-        existingPositions.add(pos);
+
         newDataValues.push({
           dataElement: targetFields[pos].de,
           categoryOptionCombo: targetFields[pos].co,
@@ -101,18 +99,34 @@ document.getElementById('convertBtn').addEventListener('click',()=>{
         filledCount++;
       }
 
-      // When target is gsphcda, ensure all 520 positions exist and block missing ones as "0"
+      // When target is gsphcda, insert "0" for all blocked positions that weren't in source
       if(targetSite==='gsphcda'){
-        for(let i=0;i<targetFields.length;i++){
-          if(!existingPositions.has(i)){
-            // Check if this gsphcda position corresponds to a blocked key
-            const gsKey = targetFields[i].de+'||'+targetFields[i].co;
-            // If this is one of the blocked keys, force "0"
-            const value = BLOCKED_ON_DPNIGERIA.has(gsKey) ? '0' : '0';
+        const existingPositions = new Set();
+        for(const dv of newDataValues){
+          const key = dv.dataElement+'||'+dv.categoryOptionCombo;
+          const p = gsphcdaMap.get(key);
+          if(p!==undefined) existingPositions.add(p);
+        }
+        // Add blocked positions as "0"
+        for(const blockedKey of BLOCKED_KEYS){
+          const p = gsphcdaMap.get(blockedKey);
+          if(p!==undefined && !existingPositions.has(p)){
             newDataValues.push({
-              dataElement: targetFields[i].de,
-              categoryOptionCombo: targetFields[i].co,
-              value: value
+              dataElement: gsphcdaFields[p].de,
+              categoryOptionCombo: gsphcdaFields[p].co,
+              value: '0'
+            });
+            zeroCount++;
+            existingPositions.add(p);
+          }
+        }
+        // Fill any other missing positions with "0"
+        for(let i=0;i<gsphcdaFields.length;i++){
+          if(!existingPositions.has(i)){
+            newDataValues.push({
+              dataElement: gsphcdaFields[i].de,
+              categoryOptionCombo: gsphcdaFields[i].co,
+              value: '0'
             });
             zeroCount++;
           }
