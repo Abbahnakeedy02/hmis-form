@@ -16,36 +16,21 @@ label { font-weight: 600; display: block; margin-top: 14px; }
 <body>
 <h2>HMIS JSON Converter - Final</h2>
 <p>Convert between <b>gsphcda-dhis.org.ng</b> and <b>dhis2nigeria.org.ng</b></p>
-
 <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin:10px 0;">
 <b>Missing cells on dhis2nigeria.org.ng:</b><br>
-Line 83 → positions 240, 241<br>
-Line 138 → position 362<br>
-Line 144 → position 374<br>
-Line 145 → position 376<br>
-<small>When converting to gsphcda, these will be "0". When converting from gsphcda, these values are skipped.</small>
+Line 83 → positions 240, 241 | Line 138 → position 362 | Line 144 → position 374 | Line 145 → position 376<br>
+<small>To gsphcda: these become "0". To dpnigeria: these are skipped.</small>
 </div>
-
 <label>From (source):</label>
-<select id="source">
-  <option value="gsphcda">gsphcda-dhis.org.ng</option>
-  <option value="dpnigeria">dhis2nigeria.org.ng</option>
-</select>
-
+<select id="source"><option value="gsphcda">gsphcda-dhis.org.ng</option><option value="dpnigeria">dhis2nigeria.org.ng</option></select>
 <label>To (target):</label>
-<select id="target">
-  <option value="dpnigeria">dhis2nigeria.org.ng</option>
-  <option value="gsphcda">gsphcda-dhis.org.ng</option>
-</select>
-
+<select id="target"><option value="dpnigeria">dhis2nigeria.org.ng</option><option value="gsphcda">gsphcda-dhis.org.ng</option></select>
 <br>
 <input type="file" id="fileInput" accept=".json"><br><br>
 <button id="convertBtn">Convert & Download</button>
 <div id="result"></div>
 
 <script>
-// Positions that are MISSING on dpnigeria (no input field at all)
-// These positions exist on gsphcda but are absent on dpnigeria
 const MISSING_ON_DPNIGERIA = new Set([240, 241, 362, 374, 376]);
 
 const gsphcdaFields = [
@@ -56,119 +41,51 @@ const dpnigeriaFields = [
   {de:"Jc1WjNKrObY",co:"IqPaOHcba7Z"},{de:"Jc1WjNKrObY",co:"t07sIn0ECwE"},{de:"Jc1WjNKrObY",co:"PCcBygZah1M"},{de:"Jc1WjNKrObY",co:"GnxpqojQRk0"},{de:"Jc1WjNKrObY",co:"YWaq4exqjpt"},{de:"Jc1WjNKrObY",co:"Fftxx8lnql6"},{de:"Jc1WjNKrObY",co:"EeOmMSob3uj"},{de:"Jc1WjNKrObY",co:"CyyxhwJfSMe"},{de:"Jc1WjNKrObY",co:"R2LOEyK3TtS"},{de:"Jc1WjNKrObY",co:"HAKkodr9Zu6"},{de:"Jc1WjNKrObY",co:"JDTkdy8801g"},{de:"Jc1WjNKrObY",co:"zi9zkiK4o6p"},{de:"KWJ3cSuyzs4",co:"IqPaOHcba7Z"},{de:"KWJ3cSuyzs4",co:"t07sIn0ECwE"},{de:"KWJ3cSuyzs4",co:"PCcBygZah1M"},{de:"KWJ3cSuyzs4",co:"GnxpqojQRk0"},{de:"KWJ3cSuyzs4",co:"YWaq4exqjpt"},{de:"KWJ3cSuyzs4",co:"Fftxx8lnql6"},{de:"KWJ3cSuyzs4",co:"EeOmMSob3uj"},{de:"KWJ3cSuyzs4",co:"CyyxhwJfSMe"},{de:"KWJ3cSuyzs4",co:"R2LOEyK3TtS"},{de:"KWJ3cSuyzs4",co:"HAKkodr9Zu6"},{de:"KWJ3cSuyzs4",co:"JDTkdy8801g"},{de:"KWJ3cSuyzs4",co:"zi9zkiK4o6p"},{de:"rXoqTMxWvfR",co:"fyfTiHgF9vo"},{de:"rXoqTMxWvfR",co:"sZCbZ25d7MW"},{de:"rXoqTMxWvfR",co:"jKZ1JvWa0bo"},{de:"rXoqTMxWvfR",co:"unpTbKdJQtF"},{de:"rXoqTMxWvfR",co:"kLhZbBLJkpW"},{de:"rXoqTMxWvfR",co:"mMPO7frYVtx"},{de:"rXoqTMxWvfR",co:"nZRrMRBxq8i"},{de:"rXoqTMxWvfR",co:"deFv7A7iQbB"},{de:"rXoqTMxWvfR",co:"qbNAG4G0vZz"},{de:"rXoqTMxWvfR",co:"BaK42evgoO9"},{de:"rXoqTMxWvfR",co:"xzhG6CUxp5z"},{de:"rXoqTMxWvfR",co:"nZnQrgxuY7T"},{de:"jE6e5ftmgvL",co:"Y2SrnZVI87k"},{de:"BY03RaJD6l5",co:"IqPaOHcba7Z"},{de:"BY03RaJD6l5",co:"t07sIn0ECwE"},{de:"BY03RaJD6l5",co:"PCcBygZah1M"},{de:"BY03RaJD6l5",co:"GnxpqojQRk0"},{de:"BY03RaJD6l5",co:"YWaq4exqjpt"},{de:"BY03RaJD6l5",co:"Fftxx8lnql6"},{de:"BY03RaJD6l5",co:"EeOmMSob3uj"},{de:"BY03RaJD6l5",co:"CyyxhwJfSMe"},{de:"BY03RaJD6l5",co:"R2LOEyK3TtS"},{de:"BY03RaJD6l5",co:"HAKkodr9Zu6"},{de:"BY03RaJD6l5",co:"JDTkdy8801g"},{de:"BY03RaJD6l5",co:"zi9zkiK4o6p"},{de:"ss0TObFWNpb",co:"A6PkZ8N4hDt"},{de:"ss0TObFWNpb",co:"ANXsWNzFlLs"},{de:"hH5OJAHVSaD",co:"VoEebZp5a26"},{de:"hH5OJAHVSaD",co:"XaZ9dVicKca"},{de:"hH5OJAHVSaD",co:"mf9du15gX7Q"},{de:"hH5OJAHVSaD",co:"yqc2wPYNDlm"},{de:"hH5OJAHVSaD",co:"BQgUEbDC2uT"},{de:"hH5OJAHVSaD",co:"u2X157PFGPp"},{de:"hH5OJAHVSaD",co:"Z02RHl1nrbl"},{de:"hH5OJAHVSaD",co:"Unk8vtfrXb3"},{de:"zU82h583KJ8",co:"Q0KgzN31pNq"},{de:"zU82h583KJ8",co:"ILmtlarTR7d"},{de:"zU82h583KJ8",co:"Ic7e3wYQeGc"},{de:"zU82h583KJ8",co:"VIeRByo8s5q"},{de:"mz0LIaWBAz9",co:"k5pHlvkYR3T"},{de:"mz0LIaWBAz9",co:"jaAWWXYY0mP"},{de:"mz0LIaWBAz9",co:"VYVkx4fIeut"},{de:"mz0LIaWBAz9",co:"ohFoRKDEJyr"},{de:"SCDCoP6l9vz",co:"VqzZ1Rld9H1"},{de:"SCDCoP6l9vz",co:"uYiYP24ADBW"},{de:"SCDCoP6l9vz",co:"lrTK1Rlll6i"},{de:"SCDCoP6l9vz",co:"qpL8m6XwJAP"},{de:"SCDCoP6l9vz",co:"vRzD2lbRQOg"},{de:"p6aVCk9aN6S",co:"zbr2vnRNwAW"},{de:"p6aVCk9aN6S",co:"YW7OzKBM90D"},{de:"ZS5cAlmGjIE",co:"Y2SrnZVI87k"},{de:"bGXqql9dyk4",co:"Y2SrnZVI87k"},{de:"BYml5jju16u",co:"Y2SrnZVI87k"},{de:"SepRb2Jc79u",co:"Y2SrnZVI87k"},{de:"Dd84UKcyK3N",co:"Y2SrnZVI87k"},{de:"wnde5350XDc",co:"Y2SrnZVI87k"},{de:"NeY2DuuWVIN",co:"Y2SrnZVI87k"},{de:"yabwwxCcG8Z",co:"Y2SrnZVI87k"},{de:"M9dic4FpGJw",co:"Y2SrnZVI87k"},{de:"K5L1S21HY8C",co:"Y2SrnZVI87k"},{de:"vm6h39xcvIT",co:"Y2SrnZVI87k"},{de:"ZdRoEHAfbKT",co:"Y2SrnZVI87k"},{de:"H50fSrStqsF",co:"Y2SrnZVI87k"},{de:"GwD95aT4ILL",co:"Y2SrnZVI87k"},{de:"pUZ0BKgsAXp",co:"Y2SrnZVI87k"},{de:"fP1E4qRJ57a",co:"Y2SrnZVI87k"},{de:"HGIz6q1NXIS",co:"Y2SrnZVI87k"},{de:"oNUnkTiGK75",co:"Y2SrnZVI87k"},{de:"w6nOgEFHWMG",co:"Y2SrnZVI87k"},{de:"tczLbbhYsiS",co:"Y2SrnZVI87k"},{de:"qDLfswfUAHJ",co:"Y2SrnZVI87k"},{de:"t7freyD6Z41",co:"Y2SrnZVI87k"},{de:"e6SAqQBTTzE",co:"Y2SrnZVI87k"},{de:"UJG0hlpcRah",co:"Y2SrnZVI87k"},{de:"N70qtdTZ21W",co:"idn6U8HSREb"},{de:"N70qtdTZ21W",co:"oNH3DKVRyh6"},{de:"N70qtdTZ21W",co:"lwoUMO6gkZ3"},{de:"UBoPz1q4n9B",co:"Y2SrnZVI87k"},{de:"FOY6SUrgmPi",co:"Y2SrnZVI87k"},{de:"o65Io5wjcmC",co:"Y2SrnZVI87k"},{de:"TEZII44Azkk",co:"Y2SrnZVI87k"},{de:"k2Ncm24FnEA",co:"Y2SrnZVI87k"},{de:"iqd4VqBKuwZ",co:"PRAZtKmEKxS"},{de:"iqd4VqBKuwZ",co:"C2c7igYHNLZ"},{de:"gG7yUN8Fo73",co:"Y2SrnZVI87k"},{de:"YYSlPXrq68L",co:"SN2WWNEYh0D"},{de:"YYSlPXrq68L",co:"DGgMMBH9CWp"},{de:"enLIMSTXYWg",co:"Y2SrnZVI87k"},{de:"UnVBvkdE7a6",co:"Y2SrnZVI87k"},{de:"Bpndtw5yACp",co:"p1wfz09QXvm"},{de:"Bpndtw5yACp",co:"RoWWDBc5JxA"},{de:"Bpndtw5yACp",co:"ETF9YwMzRxL"},{de:"Bpndtw5yACp",co:"hv1Ol34BLNR"},{de:"Bpndtw5yACp",co:"WMay5lvvaYW"},{de:"Bpndtw5yACp",co:"Ckyegjg37TN"},{de:"Bpndtw5yACp",co:"oqDd9VqyOrf"},{de:"Bpndtw5yACp",co:"wWijyO29a8e"},{de:"YjZiHDKMWCJ",co:"rYT1B3NrGPP"},{de:"YjZiHDKMWCJ",co:"tzECi5dzsdI"},{de:"YjZiHDKMWCJ",co:"hE0EYluYY9M"},{de:"YjZiHDKMWCJ",co:"YeBqKiTj5Te"},{de:"T8saezgpjlR",co:"rYT1B3NrGPP"},{de:"T8saezgpjlR",co:"tzECi5dzsdI"},{de:"T8saezgpjlR",co:"hE0EYluYY9M"},{de:"T8saezgpjlR",co:"YeBqKiTj5Te"},{de:"FHmQPDbgyYZ",co:"DwPfw93qq2t"},{de:"FHmQPDbgyYZ",co:"nxDfg1AD4Wh"},{de:"ESAPLze15Xt",co:"cKUei4Mwf2L"},{de:"ESAPLze15Xt",co:"PvE4QzqKgHw"},{de:"VSUxaL8ns8S",co:"cKUei4Mwf2L"},{de:"VSUxaL8ns8S",co:"PvE4QzqKgHw"},{de:"CLR7FxVTtPy",co:"cKUei4Mwf2L"},{de:"CLR7FxVTtPy",co:"PvE4QzqKgHw"},{de:"aF9rm97qY4p",co:"cKUei4Mwf2L"},{de:"aF9rm97qY4p",co:"PvE4QzqKgHw"},{de:"pUBZgqI7A8F",co:"cKUei4Mwf2L"},{de:"pUBZgqI7A8F",co:"PvE4QzqKgHw"},{de:"NELDwuOUb8c",co:"cKUei4Mwf2L"},{de:"NELDwuOUb8c",co:"PvE4QzqKgHw"},{de:"S7K2xg0kURO",co:"cKUei4Mwf2L"},{de:"S7K2xg0kURO",co:"PvE4QzqKgHw"},{de:"bTbcgBUZe24",co:"cKUei4Mwf2L"},{de:"bTbcgBUZe24",co:"PvE4QzqKgHw"},{de:"f8rdfwNq6IM",co:"cKUei4Mwf2L"},{de:"f8rdfwNq6IM",co:"PvE4QzqKgHw"},{de:"wUTa7hTRiW2",co:"cKUei4Mwf2L"},{de:"wUTa7hTRiW2",co:"PvE4QzqKgHw"},{de:"Cb6m2sEsJMH",co:"cKUei4Mwf2L"},{de:"Cb6m2sEsJMH",co:"PvE4QzqKgHw"},{de:"uCXuVEe5D8a",co:"cKUei4Mwf2L"},{de:"uCXuVEe5D8a",co:"PvE4QzqKgHw"},{de:"RWIzcNAddwy",co:"kS5fc6KmWM0"},{de:"RWIzcNAddwy",co:"iGYA7lIrQHV"},{de:"RWIzcNAddwy",co:"sT3OKwogU2z"},{de:"RWIzcNAddwy",co:"mYgA19pdKU3"},{de:"RWIzcNAddwy",co:"akUbaWYZh5p"},{de:"xPb6jZ1UGZU",co:"AYuQwob0fOb"},{de:"xPb6jZ1UGZU",co:"yh81iwdBwLc"},{de:"xPb6jZ1UGZU",co:"Q53G6NVBcYr"},{de:"xPb6jZ1UGZU",co:"l1iy0xEgVFf"},{de:"xPb6jZ1UGZU",co:"L4ca91eNwI9"},{de:"rgmSg4j5CRD",co:"Knva5F6vpNi"},{de:"rgmSg4j5CRD",co:"Jf7HweYFAFM"},{de:"rgmSg4j5CRD",co:"X09n3qxT4ol"},{de:"rgmSg4j5CRD",co:"buq6m3bCd4y"},{de:"uXCH3rq9tLd",co:"Knva5F6vpNi"},{de:"uXCH3rq9tLd",co:"Jf7HweYFAFM"},{de:"uXCH3rq9tLd",co:"X09n3qxT4ol"},{de:"uXCH3rq9tLd",co:"buq6m3bCd4y"},{de:"UVw96W1kcja",co:"Knva5F6vpNi"},{de:"UVw96W1kcja",co:"Jf7HweYFAFM"},{de:"UVw96W1kcja",co:"X09n3qxT4ol"},{de:"UVw96W1kcja",co:"buq6m3bCd4y"},{de:"HhWjY78dECn",co:"Knva5F6vpNi"},{de:"HhWjY78dECn",co:"Jf7HweYFAFM"},{de:"HhWjY78dECn",co:"X09n3qxT4ol"},{de:"HhWjY78dECn",co:"buq6m3bCd4y"},{de:"b6X0aWFCb2E",co:"Knva5F6vpNi"},{de:"b6X0aWFCb2E",co:"Jf7HweYFAFM"},{de:"b6X0aWFCb2E",co:"X09n3qxT4ol"},{de:"b6X0aWFCb2E",co:"buq6m3bCd4y"},{de:"XqBKmk4DHSL",co:"Knva5F6vpNi"},{de:"XqBKmk4DHSL",co:"Jf7HweYFAFM"},{de:"XqBKmk4DHSL",co:"X09n3qxT4ol"},{de:"XqBKmk4DHSL",co:"buq6m3bCd4y"},{de:"zxO1LKfxOF2",co:"Knva5F6vpNi"},{de:"zxO1LKfxOF2",co:"Jf7HweYFAFM"},{de:"zxO1LKfxOF2",co:"X09n3qxT4ol"},{de:"zxO1LKfxOF2",co:"buq6m3bCd4y"},{de:"iWQ9dIazJD4",co:"Knva5F6vpNi"},{de:"iWQ9dIazJD4",co:"Jf7HweYFAFM"},{de:"iWQ9dIazJD4",co:"X09n3qxT4ol"},{de:"iWQ9dIazJD4",co:"buq6m3bCd4y"},{de:"x4HgjBU1kCq",co:"Knva5F6vpNi"},{de:"x4HgjBU1kCq",co:"Jf7HweYFAFM"},{de:"x4HgjBU1kCq",co:"X09n3qxT4ol"},{de:"x4HgjBU1kCq",co:"buq6m3bCd4y"},{de:"LJxhmASdZT9",co:"Knva5F6vpNi"},{de:"LJxhmASdZT9",co:"Jf7HweYFAFM"},{de:"LJxhmASdZT9",co:"X09n3qxT4ol"},{de:"LJxhmASdZT9",co:"buq6m3bCd4y"},{de:"EbbbFoiCeKS",co:"Knva5F6vpNi"},{de:"EbbbFoiCeKS",co:"Jf7HweYFAFM"},{de:"EbbbFoiCeKS",co:"X09n3qxT4ol"},{de:"EbbbFoiCeKS",co:"buq6m3bCd4y"},{de:"bKSVofVt1vy",co:"Knva5F6vpNi"},{de:"bKSVofVt1vy",co:"Jf7HweYFAFM"},{de:"bKSVofVt1vy",co:"X09n3qxT4ol"},{de:"bKSVofVt1vy",co:"buq6m3bCd4y"},{de:"BFeSKtHhPKi",co:"Knva5F6vpNi"},{de:"BFeSKtHhPKi",co:"Jf7HweYFAFM"},{de:"BFeSKtHhPKi",co:"X09n3qxT4ol"},{de:"BFeSKtHhPKi",co:"buq6m3bCd4y"},{de:"WLY3o7VjBJj",co:"Knva5F6vpNi"},{de:"WLY3o7VjBJj",co:"Jf7HweYFAFM"},{de:"WLY3o7VjBJj",co:"X09n3qxT4ol"},{de:"WLY3o7VjBJj",co:"buq6m3bCd4y"},{de:"RCBDYyaVpDI",co:"Knva5F6vpNi"},{de:"RCBDYyaVpDI",co:"Jf7HweYFAFM"},{de:"RCBDYyaVpDI",co:"X09n3qxT4ol"},{de:"RCBDYyaVpDI",co:"buq6m3bCd4y"},{de:"O5xIv3B9nVt",co:"Knva5F6vpNi"},{de:"O5xIv3B9nVt",co:"Jf7HweYFAFM"},{de:"O5xIv3B9nVt",co:"X09n3qxT4ol"},{de:"O5xIv3B9nVt",co:"buq6m3bCd4y"},{de:"wvgDChoeWz5",co:"Knva5F6vpNi"},{de:"wvgDChoeWz5",co:"Jf7HweYFAFM"},{de:"wvgDChoeWz5",co:"X09n3qxT4ol"},{de:"wvgDChoeWz5",co:"buq6m3bCd4y"},{de:"j6mCLL1X4yG",co:"Knva5F6vpNi"},{de:"j6mCLL1X4yG",co:"Jf7HweYFAFM"},{de:"j6mCLL1X4yG",co:"X09n3qxT4ol"},{de:"j6mCLL1X4yG",co:"buq6m3bCd4y"},{de:"CvX3NUIe50P",co:"Knva5F6vpNi"},{de:"CvX3NUIe50P",co:"Jf7HweYFAFM"},{de:"KpKx2MosfIV",co:"Knva5F6vpNi"},{de:"KpKx2MosfIV",co:"Jf7HweYFAFM"},{de:"KpKx2MosfIV",co:"X09n3qxT4ol"},{de:"KpKx2MosfIV",co:"buq6m3bCd4y"},{de:"oB7SLTRHciH",co:"Knva5F6vpNi"},{de:"oB7SLTRHciH",co:"Jf7HweYFAFM"},{de:"oB7SLTRHciH",co:"X09n3qxT4ol"},{de:"oB7SLTRHciH",co:"buq6m3bCd4y"},{de:"iOUKrRANJwi",co:"Knva5F6vpNi"},{de:"iOUKrRANJwi",co:"Jf7HweYFAFM"},{de:"iOUKrRANJwi",co:"X09n3qxT4ol"},{de:"iOUKrRANJwi",co:"buq6m3bCd4y"},{de:"Iv5zWPF5BkT",co:"Knva5F6vpNi"},{de:"Iv5zWPF5BkT",co:"Jf7HweYFAFM"},{de:"Iv5zWPF5BkT",co:"X09n3qxT4ol"},{de:"Iv5zWPF5BkT",co:"buq6m3bCd4y"},{de:"vgYoIHj8uAf",co:"G9pUA4p3V00"},{de:"vgYoIHj8uAf",co:"iTaWjOe3t3a"},{de:"XAWLGqJks6S",co:"Y2SrnZVI87k"},{de:"JncFZvVQmub",co:"UgbzH4d3opz"},{de:"JncFZvVQmub",co:"nPbwTkZ26v6"},{de:"p6zab5UjG5y",co:"Y2SrnZVI87k"},{de:"p6zab5UjG5y",co:"Y2SrnZVI87k"},{de:"sXkf3hpUt2f",co:"zzWSdqmI9wu"},{de:"sXkf3hpUt2f",co:"ny9scHfKphd"},{de:"zCTQrGMQhk6",co:"zzWSdqmI9wu"},{de:"zCTQrGMQhk6",co:"ny9scHfKphd"},{de:"i7BzFyL6VYK",co:"Y2SrnZVI87k"},{de:"i7BzFyL6VYK",co:"Y2SrnZVI87k"},{de:"zao1f3BoLDn",co:"K3HFlRf67TU"},{de:"zao1f3BoLDn",co:"RjJiUvmMlK8"},{de:"zao1f3BoLDn",co:"rJY0Rd7Z8aV"},{de:"eJCaeLclT0k",co:"Y2SrnZVI87k"},{de:"KwDMIwMkVjK",co:"Y2SrnZVI87k"},{de:"KwDMIwMkVjK",co:"Y2SrnZVI87k"},{de:"OEAvLQTpgbd",co:"nT4YcX1oqYa"},{de:"OEAvLQTpgbd",co:"k1tblU2z2DR"},{de:"bi4x9oU61V6",co:"nT4YcX1oqYa"},{de:"bi4x9oU61V6",co:"k1tblU2z2DR"},{de:"dGtLtchN2mY",co:"nT4YcX1oqYa"},{de:"dGtLtchN2mY",co:"k1tblU2z2DR"},{de:"uMT81d6MUvH",co:"YLnVx36kEoB"},{de:"uMT81d6MUvH",co:"Agj0kWQNVcb"},{de:"uMT81d6MUvH",co:"WeChkhdxd0J"},{de:"uMT81d6MUvH",co:"qiPeu1fhUzc"},{de:"uMT81d6MUvH",co:"WSz0ikY7Yy6"},{de:"uMT81d6MUvH",co:"JDSQGLCxXZD"},{de:"uMT81d6MUvH",co:"S1UIhPhfCJu"},{de:"uMT81d6MUvH",co:"spJcVru5xm5"},{de:"uMT81d6MUvH",co:"zg4UEdnkjTe"},{de:"uMT81d6MUvH",co:"nxOYlIH0fyC"},{de:"uMT81d6MUvH",co:"eTW0ydGTe78"},{de:"uMT81d6MUvH",co:"BGiySNUZJ6L"},{de:"XcWlUTGQCv3",co:"cKUei4Mwf2L"},{de:"XcWlUTGQCv3",co:"PvE4QzqKgHw"},{de:"cUm4VZdZlAd",co:"cKUei4Mwf2L"},{de:"cUm4VZdZlAd",co:"PvE4QzqKgHw"},{de:"ym6wINtqn07",co:"Y2SrnZVI87k"},{de:"linOJxxKyu3",co:"lyghGMPjQYu"},{de:"linOJxxKyu3",co:"fx0GSBXQxBJ"},{de:"linOJxxKyu3",co:"cdTHgakPg2J"},{de:"linOJxxKyu3",co:"RBjyIbxB9EY"},{de:"ehFUaq1l2ki",co:"cKUei4Mwf2L"},{de:"ehFUaq1l2ki",co:"PvE4QzqKgHw"},{de:"IvqdhtepMyZ",co:"cKUei4Mwf2L"},{de:"IvqdhtepMyZ",co:"PvE4QzqKgHw"},{de:"m1WXZgnVYw9",co:"vlpLmuuM3af"},{de:"m1WXZgnVYw9",co:"twJft7xNxJF"},{de:"m1WXZgnVYw9",co:"W06NzdJ52q0"},{de:"m1WXZgnVYw9",co:"Mml2zeHwNRf"},{de:"TYvqMhOvbNu",co:"gmW8MmLRJM9"},{de:"TYvqMhOvbNu",co:"cKf6Y3d6XxG"},{de:"TYvqMhOvbNu",co:"OSiqazly2Gf"},{de:"TYvqMhOvbNu",co:"P68rcU7ahzc"},{de:"TYvqMhOvbNu",co:"pLJb53AcTuj"},{de:"TYvqMhOvbNu",co:"UOncmG7eakp"},{de:"TYvqMhOvbNu",co:"UxYxduhZOMQ"},{de:"TYvqMhOvbNu",co:"VSa75IMnlKH"},{de:"pU0Bi0LHHxm",co:"cKUei4Mwf2L"},{de:"pU0Bi0LHHxm",co:"PvE4QzqKgHw"},{de:"BfcCmnKw8Ck",co:"cKUei4Mwf2L"},{de:"BfcCmnKw8Ck",co:"PvE4QzqKgHw"},{de:"Pzcrm4XSHrF",co:"cKUei4Mwf2L"},{de:"Pzcrm4XSHrF",co:"PvE4QzqKgHw"},{de:"ERKFwtazSsr",co:"cKUei4Mwf2L"},{de:"ERKFwtazSsr",co:"PvE4QzqKgHw"},{de:"yWOolkdPEA4",co:"cKUei4Mwf2L"},{de:"yWOolkdPEA4",co:"PvE4QzqKgHw"},{de:"c7T9iG1BVbo",co:"cKUei4Mwf2L"},{de:"c7T9iG1BVbo",co:"PvE4QzqKgHw"},{de:"mvBO08ctlWw",co:"cKUei4Mwf2L"},{de:"mvBO08ctlWw",co:"PvE4QzqKgHw"},{de:"HDmaff9ZJls",co:"ynM4SNxMDEL"},{de:"HDmaff9ZJls",co:"pRCfLBr13Oo"},{de:"HDmaff9ZJls",co:"xOmL1lL1Z2i"},{de:"HDmaff9ZJls",co:"gRCW3m83dFY"},{de:"HDmaff9ZJls",co:"ACHZ96suGZq"},{de:"s3OmRQyrQgq",co:"Y2SrnZVI87k"},{de:"t0cLErw5kRE",co:"Y2SrnZVI87k"},{de:"YDtoinhR86e",co:"Y2SrnZVI87k"},{de:"zoBlPHnBao9",co:"bNExScpoo9e"},{de:"zoBlPHnBao9",co:"q8iZo6GpKgr"},{de:"zoBlPHnBao9",co:"IuLMzZHCRCf"},{de:"zoBlPHnBao9",co:"EbBmmAFhwoA"},{de:"MWAw6fPKE1G",co:"baKuPjMDSR0"},{de:"MWAw6fPKE1G",co:"JpAR1hJ2uaK"},{de:"mLMjVOd8ulA",co:"u74cBbPbWbp"},{de:"mLMjVOd8ulA",co:"B0Q3KH9Xxsj"},{de:"aIqD0jQovrn",co:"cKUei4Mwf2L"},{de:"aIqD0jQovrn",co:"PvE4QzqKgHw"},{de:"HfXCa0iZvyZ",co:"cKUei4Mwf2L"},{de:"HfXCa0iZvyZ",co:"PvE4QzqKgHw"},{de:"idYlraoPGEo",co:"cKUei4Mwf2L"},{de:"idYlraoPGEo",co:"PvE4QzqKgHw"},{de:"ucPHjDbkFfI",co:"Y2SrnZVI87k"},{de:"laVyfOepxin",co:"Y2SrnZVI87k"},{de:"G6qgeDndkWc",co:"Y2SrnZVI87k"},{de:"L0ybLGgUJ4l",co:"Y2SrnZVI87k"},{de:"p1wGqW1rJbS",co:"Y2SrnZVI87k"},{de:"CyuNtbglHse",co:"Y2SrnZVI87k"},{de:"u2Dzr2whr7g",co:"Y2SrnZVI87k"},{de:"tSCqxLc7dzh",co:"Y2SrnZVI87k"},{de:"LqOSSfm0pdV",co:"Y2SrnZVI87k"},{de:"Xsq7BCmz48L",co:"Y2SrnZVI87k"},{de:"K3OmIVia2yB",co:"cKUei4Mwf2L"},{de:"K3OmIVia2yB",co:"PvE4QzqKgHw"},{de:"MsWiW19Z8Sv",co:"PvE4QzqKgHw"},{de:"VkNfEVV9DCs",co:"cKUei4Mwf2L"},{de:"VkNfEVV9DCs",co:"PvE4QzqKgHw"},{de:"PyLGrpYIxgo",co:"cKUei4Mwf2L"},{de:"PyLGrpYIxgo",co:"PvE4QzqKgHw"},{de:"kYWwfpeNTbE",co:"cKUei4Mwf2L"},{de:"kYWwfpeNTbE",co:"PvE4QzqKgHw"},{de:"K6JaNgEKvyB",co:"cKUei4Mwf2L"},{de:"K6JaNgEKvyB",co:"PvE4QzqKgHw"},{de:"NDcyFrJYZwE",co:"cKUei4Mwf2L"},{de:"NDcyFrJYZwE",co:"PvE4QzqKgHw"},{de:"yJMeYOpyGVl",co:"PvE4QzqKgHw"},{de:"gWEwjpdDvmi",co:"PvE4QzqKgHw"},{de:"ZFgiCO6nyAP",co:"Y2SrnZVI87k"},{de:"m5gTF1jKQjl",co:"Bl7e1tsRGoZ"},{de:"m5gTF1jKQjl",co:"v0QZcUTuyjD"},{de:"m5gTF1jKQjl",co:"V86mzY788hR"},{de:"r6WOvUlcQm6",co:"Bl7e1tsRGoZ"},{de:"r6WOvUlcQm6",co:"v0QZcUTuyjD"},{de:"r6WOvUlcQm6",co:"V86mzY788hR"},{de:"GEd2F6skCpT",co:"Bl7e1tsRGoZ"},{de:"GEd2F6skCpT",co:"v0QZcUTuyjD"},{de:"GEd2F6skCpT",co:"V86mzY788hR"},{de:"k2Cpuz9BQtD",co:"Bl7e1tsRGoZ"},{de:"k2Cpuz9BQtD",co:"v0QZcUTuyjD"},{de:"k2Cpuz9BQtD",co:"V86mzY788hR"},{de:"G7iWnz9RMy9",co:"Bl7e1tsRGoZ"},{de:"G7iWnz9RMy9",co:"v0QZcUTuyjD"},{de:"G7iWnz9RMy9",co:"V86mzY788hR"},{de:"K9K1G0XX4ax",co:"Bl7e1tsRGoZ"},{de:"K9K1G0XX4ax",co:"v0QZcUTuyjD"},{de:"K9K1G0XX4ax",co:"V86mzY788hR"},{de:"HdtaLx63988",co:"Bl7e1tsRGoZ"},{de:"HdtaLx63988",co:"v0QZcUTuyjD"},{de:"HdtaLx63988",co:"V86mzY788hR"},{de:"nrql7kywMLM",co:"Bl7e1tsRGoZ"},{de:"nrql7kywMLM",co:"v0QZcUTuyjD"},{de:"nrql7kywMLM",co:"V86mzY788hR"},{de:"ouzURM9c1FI",co:"Bl7e1tsRGoZ"},{de:"ouzURM9c1FI",co:"v0QZcUTuyjD"},{de:"ouzURM9c1FI",co:"V86mzY788hR"},{de:"nDKVffS3ijX",co:"Bl7e1tsRGoZ"},{de:"nDKVffS3ijX",co:"v0QZcUTuyjD"},{de:"nDKVffS3ijX",co:"V86mzY788hR"},{de:"M1kGBHgqGvv",co:"Bl7e1tsRGoZ"},{de:"M1kGBHgqGvv",co:"v0QZcUTuyjD"},{de:"M1kGBHgqGvv",co:"V86mzY788hR"},{de:"fFe9CPuM7Xz",co:"Bl7e1tsRGoZ"},{de:"fFe9CPuM7Xz",co:"v0QZcUTuyjD"},{de:"fFe9CPuM7Xz",co:"V86mzY788hR"},{de:"Nz9eV0G9qTW",co:"Bl7e1tsRGoZ"},{de:"Nz9eV0G9qTW",co:"v0QZcUTuyjD"},{de:"Nz9eV0G9qTW",co:"V86mzY788hR"},{de:"ilSvQ0EwZVJ",co:"Bl7e1tsRGoZ"},{de:"ilSvQ0EwZVJ",co:"v0QZcUTuyjD"},{de:"ilSvQ0EwZVJ",co:"V86mzY788hR"},{de:"IJh3ZOK0C8s",co:"cKUei4Mwf2L"},{de:"IJh3ZOK0C8s",co:"PvE4QzqKgHw"},{de:"tHCnzV284cA",co:"cKUei4Mwf2L"},{de:"tHCnzV284cA",co:"PvE4QzqKgHw"},{de:"d20uQhRP2mA",co:"cKUei4Mwf2L"},{de:"d20uQhRP2mA",co:"PvE4QzqKgHw"},{de:"BsNfxGthfKG",co:"d93oW3TLiRM"},{de:"BsNfxGthfKG",co:"mJR4YTV5rT0"},{de:"BsNfxGthfKG",co:"RxsnY2Ybcz4"},{de:"BsNfxGthfKG",co:"nacYDo28GUT"},{de:"S6LsYjSkBiM",co:"d93oW3TLiRM"},{de:"S6LsYjSkBiM",co:"mJR4YTV5rT0"},{de:"S6LsYjSkBiM",co:"RxsnY2Ybcz4"},{de:"S6LsYjSkBiM",co:"nacYDo28GUT"},{de:"qVJz6XPlqmp",co:"d93oW3TLiRM"},{de:"qVJz6XPlqmp",co:"mJR4YTV5rT0"},{de:"qVJz6XPlqmp",co:"RxsnY2Ybcz4"},{de:"qVJz6XPlqmp",co:"nacYDo28GUT"},{de:"L71zyfnfj9b",co:"d93oW3TLiRM"},{de:"L71zyfnfj9b",co:"mJR4YTV5rT0"},{de:"L71zyfnfj9b",co:"RxsnY2Ybcz4"},{de:"L71zyfnfj9b",co:"nacYDo28GUT"},{de:"s8uOnKtJwMh",co:"OxkU8ZRPUr5"},{de:"s8uOnKtJwMh",co:"F8Qm7Kmvad4"},{de:"s8uOnKtJwMh",co:"u1so2gPZ1W4"},{de:"s8uOnKtJwMh",co:"wLnok3DGfeV"},{de:"QluCCbvUF3C",co:"OxkU8ZRPUr5"},{de:"QluCCbvUF3C",co:"F8Qm7Kmvad4"},{de:"QluCCbvUF3C",co:"u1so2gPZ1W4"},{de:"QluCCbvUF3C",co:"wLnok3DGfeV"},{de:"bprItndokrc",co:"OxkU8ZRPUr5"},{de:"bprItndokrc",co:"F8Qm7Kmvad4"},{de:"bprItndokrc",co:"u1so2gPZ1W4"},{de:"bprItndokrc",co:"wLnok3DGfeV"},{de:"m2IiUolHUUp",co:"OxkU8ZRPUr5"},{de:"m2IiUolHUUp",co:"F8Qm7Kmvad4"},{de:"m2IiUolHUUp",co:"u1so2gPZ1W4"},{de:"m2IiUolHUUp",co:"wLnok3DGfeV"},{de:"gCnWh1LU6qg",co:"mz0x0bs3nUN"},{de:"gCnWh1LU6qg",co:"xhSLINy9VyU"},{de:"gCnWh1LU6qg",co:"FUDO1t9cO92"},{de:"gCnWh1LU6qg",co:"i9hA9Fn5358"},{de:"GRAtfUqgaW4",co:"mz0x0bs3nUN"},{de:"GRAtfUqgaW4",co:"xhSLINy9VyU"},{de:"GRAtfUqgaW4",co:"FUDO1t9cO92"},{de:"GRAtfUqgaW4",co:"i9hA9Fn5358"},{de:"IQF27L4NshV",co:"mz0x0bs3nUN"},{de:"IQF27L4NshV",co:"xhSLINy9VyU"},{de:"IQF27L4NshV",co:"FUDO1t9cO92"},{de:"IQF27L4NshV",co:"i9hA9Fn5358"},{de:"YWNyZu9wR89",co:"UPjJ2Y4T0PS"},{de:"YWNyZu9wR89",co:"JlXyhYJMdbg"},{de:"YWNyZu9wR89",co:"vK1jKtDV5zU"},{de:"YWNyZu9wR89",co:"En1pmEosRKK"},{de:"YWNyZu9wR89",co:"AY46ePeFELt"},{de:"YWNyZu9wR89",co:"iI8qHcizhed"},{de:"jepyFtpEl6b",co:"UPjJ2Y4T0PS"},{de:"jepyFtpEl6b",co:"JlXyhYJMdbg"},{de:"jepyFtpEl6b",co:"vK1jKtDV5zU"},{de:"jepyFtpEl6b",co:"En1pmEosRKK"},{de:"jepyFtpEl6b",co:"AY46ePeFELt"},{de:"jepyFtpEl6b",co:"iI8qHcizhed"},{de:"UH3KPxrSEfc",co:"UPjJ2Y4T0PS"},{de:"UH3KPxrSEfc",co:"JlXyhYJMdbg"},{de:"UH3KPxrSEfc",co:"vK1jKtDV5zU"},{de:"UH3KPxrSEfc",co:"En1pmEosRKK"},{de:"UH3KPxrSEfc",co:"AY46ePeFELt"},{de:"UH3KPxrSEfc",co:"iI8qHcizhed"},{de:"zus9Id2Onw2",co:"UPjJ2Y4T0PS"},{de:"zus9Id2Onw2",co:"JlXyhYJMdbg"},{de:"zus9Id2Onw2",co:"vK1jKtDV5zU"},{de:"zus9Id2Onw2",co:"En1pmEosRKK"},{de:"zus9Id2Onw2",co:"AY46ePeFELt"},{de:"zus9Id2Onw2",co:"iI8qHcizhed"},{de:"CA1M7Iufeg2",co:"UPjJ2Y4T0PS"},{de:"CA1M7Iufeg2",co:"JlXyhYJMdbg"},{de:"CA1M7Iufeg2",co:"vK1jKtDV5zU"},{de:"CA1M7Iufeg2",co:"En1pmEosRKK"},{de:"CA1M7Iufeg2",co:"AY46ePeFELt"},{de:"CA1M7Iufeg2",co:"iI8qHcizhed"},{de:"VlSLE4WwxcX",co:"UPjJ2Y4T0PS"},{de:"VlSLE4WwxcX",co:"JlXyhYJMdbg"},{de:"VlSLE4WwxcX",co:"vK1jKtDV5zU"},{de:"VlSLE4WwxcX",co:"En1pmEosRKK"},{de:"VlSLE4WwxcX",co:"AY46ePeFELt"},{de:"VlSLE4WwxcX",co:"iI8qHcizhed"},{de:"HeRnbbwTXMK",co:"UPjJ2Y4T0PS"},{de:"HeRnbbwTXMK",co:"JlXyhYJMdbg"},{de:"HeRnbbwTXMK",co:"vK1jKtDV5zU"},{de:"HeRnbbwTXMK",co:"En1pmEosRKK"},{de:"HeRnbbwTXMK",co:"AY46ePeFELt"},{de:"HeRnbbwTXMK",co:"iI8qHcizhed"},{de:"tfpb78ws5iq",co:"cKUei4Mwf2L"},{de:"tfpb78ws5iq",co:"PvE4QzqKgHw"},{de:"iU1PwVPcb28",co:"cKUei4Mwf2L"},{de:"iU1PwVPcb28",co:"PvE4QzqKgHw"},{de:"j5g3ouyAGfK",co:"cKUei4Mwf2L"},{de:"j5g3ouyAGfK",co:"PvE4QzqKgHw"},{de:"fC6IHMcCHuY",co:"Y2SrnZVI87k"}
 ];
 
-// Build lookup maps
-const gsphcdaMap = new Map();
-gsphcdaFields.forEach((f, i) => gsphcdaMap.set(f.de+'||'+f.co, i));
-const dpnigeriaMap = new Map();
-dpnigeriaFields.forEach((f, i) => dpnigeriaMap.set(f.de+'||'+f.co, i));
+const gsphcdaMap = new Map(); gsphcdaFields.forEach((f,i)=>gsphcdaMap.set(f.de+'||'+f.co,i));
+const dpnigeriaMap = new Map(); dpnigeriaFields.forEach((f,i)=>dpnigeriaMap.set(f.de+'||'+f.co,i));
 
-document.getElementById('convertBtn').addEventListener('click', () => {
-  const sourceSite = document.getElementById('source').value;
-  const targetSite = document.getElementById('target').value;
-  const fileInput = document.getElementById('fileInput');
-  const resultDiv = document.getElementById('result');
-
-  if (!fileInput.files[0]) {
-    resultDiv.style.display = 'block';
-    resultDiv.style.background = '#fee2e2';
-    resultDiv.textContent = 'Please select a JSON file.';
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const sourceData = JSON.parse(e.target.result);
-      if (!Array.isArray(sourceData.dataValues)) throw new Error('No dataValues array.');
-
-      const sourceMap = sourceSite === 'gsphcda' ? gsphcdaMap : dpnigeriaMap;
-      const targetFields = targetSite === 'gsphcda' ? gsphcdaFields : dpnigeriaFields;
-
-      const newDataValues = [];
-      let filledCount = 0, zeroCount = 0, skippedCount = 0;
-
-      // Process source entries
-      for (const dv of sourceData.dataValues) {
-        const key = dv.dataElement + '||' + dv.categoryOptionCombo;
-        const pos = sourceMap.get(key);
-        
-        if (pos === undefined) {
-          skippedCount++;
-          continue;
-        }
-
-        // Check if this position is missing on target site
-        // Missing positions only matter when target is dpnigeria (they have fewer fields)
-        let value;
-        if (targetSite === 'gsphcda' && MISSING_ON_DPNIGERIA.has(pos)) {
-          // Converting TO gsphcda: these positions exist on gsphcda but source (dpnigeria) 
-          // didn't have them. They'll be filled as "0" by the second loop below.
-          // Actually, this case shouldn't happen because dpnigeria source won't have these positions.
-          value = dv.value;
-          filledCount++;
-        } else if (targetSite === 'dpnigeria' && MISSING_ON_DPNIGERIA.has(pos)) {
-          // Converting TO dpnigeria: these positions DON'T exist on dpnigeria, skip them
-          skippedCount++;
-          continue;
-        } else {
-          value = dv.value;
-          filledCount++;
-        }
-
-        // Map to target IDs
-        if (pos < targetFields.length) {
-          newDataValues.push({
-            dataElement: targetFields[pos].de,
-            categoryOptionCombo: targetFields[pos].co,
-            value: value
-          });
-        } else {
-          skippedCount++;
-        }
+document.getElementById('convertBtn').addEventListener('click',()=>{
+  const sourceSite=document.getElementById('source').value;
+  const targetSite=document.getElementById('target').value;
+  const fileInput=document.getElementById('fileInput');
+  const resultDiv=document.getElementById('result');
+  if(!fileInput.files[0]){resultDiv.style.display='block';resultDiv.style.background='#fee2e2';resultDiv.textContent='Please select a JSON file.';return;}
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    try{
+      const sourceData=JSON.parse(e.target.result);
+      if(!Array.isArray(sourceData.dataValues))throw new Error('No dataValues array.');
+      const sourceMap=sourceSite==='gsphcda'?gsphcdaMap:dpnigeriaMap;
+      const targetFields=targetSite==='gsphcda'?gsphcdaFields:dpnigeriaFields;
+      const newDataValues=[];
+      let filledCount=0,zeroCount=0,skippedCount=0;
+      const existingPositions=new Set();
+      for(const dv of sourceData.dataValues){
+        const key=dv.dataElement+'||'+dv.categoryOptionCombo;
+        const pos=sourceMap.get(key);
+        if(pos===undefined){skippedCount++;continue;}
+        if(targetSite==='dpnigeria'&&MISSING_ON_DPNIGERIA.has(pos)){skippedCount++;continue;}
+        if(pos>=targetFields.length){skippedCount++;continue;}
+        existingPositions.add(pos);
+        newDataValues.push({dataElement:targetFields[pos].de,categoryOptionCombo:targetFields[pos].co,value:dv.value});
+        filledCount++;
       }
-
-      // When target is gsphcda, add missing positions as "0"
-      if (targetSite === 'gsphcda') {
-        const existingPositions = new Set();
-        for (const dv of sourceData.dataValues) {
-          const key = dv.dataElement + '||' + dv.categoryOptionCombo;
-          const pos = sourceMap.get(key);
-          if (pos !== undefined) existingPositions.add(pos);
-        }
-        for (let i = 0; i < targetFields.length; i++) {
-          if (!existingPositions.has(i)) {
-            newDataValues.push({
-              dataElement: targetFields[i].de,
-              categoryOptionCombo: targetFields[i].co,
-              value: '0'
-            });
+      if(targetSite==='gsphcda'){
+        for(let i=0;i<targetFields.length;i++){
+          if(!existingPositions.has(i)){
+            newDataValues.push({dataElement:targetFields[i].de,categoryOptionCombo:targetFields[i].co,value:'0'});
             zeroCount++;
           }
         }
       }
-
-      const output = {
-        facility: sourceData.facility || {},
-        reportDate: new Date().toISOString(),
-        dataValues: newDataValues
-      };
-
-      const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/octet-stream' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'converted_' + (sourceData.facility?.facility || 'data') + '.json';
-      a.click();
+      const output={facility:sourceData.facility||{},reportDate:new Date().toISOString(),dataValues:newDataValues};
+      const blob=new Blob([JSON.stringify(output,null,2)],{type:'application/octet-stream'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download='converted_'+(sourceData.facility?.facility||'data')+'.json';a.click();
       URL.revokeObjectURL(url);
-
-      resultDiv.style.display = 'block';
-      resultDiv.style.background = '#f0fdf4';
-      resultDiv.textContent = `✅ Converted ${newDataValues.length} values. Filled: ${filledCount}, Zero: ${zeroCount}, Skipped: ${skippedCount}`;
-    } catch (err) {
-      resultDiv.style.display = 'block';
-      resultDiv.style.background = '#fee2e2';
-      resultDiv.textContent = 'Error: ' + err.message;
-    }
+      resultDiv.style.display='block';resultDiv.style.background='#f0fdf4';
+      resultDiv.textContent=`Converted ${newDataValues.length} values. Filled: ${filledCount}, Zero: ${zeroCount}, Skipped: ${skippedCount}`;
+    }catch(err){resultDiv.style.display='block';resultDiv.style.background='#fee2e2';resultDiv.textContent='Error: '+err.message;}
   };
   reader.readAsText(fileInput.files[0]);
 });
